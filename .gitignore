@@ -1,0 +1,5 @@
+/target/
+/.hawlucha-check/
+/.conductor/
+.env
+.DS_Store

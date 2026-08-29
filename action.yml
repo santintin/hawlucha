@@ -1,0 +1,21 @@
+name: Install Hawlucha
+description: Install a verified Hawlucha CLI release and add it to PATH.
+inputs:
+  version:
+    description: Release version without the leading v. Defaults to the latest release.
+    required: false
+    default: latest
+runs:
+  using: composite
+  steps:
+    - name: Install Hawlucha
+      shell: bash
+      env:
+        HAWLUCHA_VERSION_INPUT: ${{ inputs.version }}
+        HAWLUCHA_INSTALL_DIR: ${{ runner.temp }}/hawlucha/bin
+      run: |
+        if [[ "${HAWLUCHA_VERSION_INPUT}" != "latest" ]]; then
+          export HAWLUCHA_VERSION="${HAWLUCHA_VERSION_INPUT}"
+        fi
+        "${GITHUB_ACTION_PATH}/install.sh"
+        echo "${HAWLUCHA_INSTALL_DIR}" >> "${GITHUB_PATH}"

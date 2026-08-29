@@ -1,0 +1,390 @@
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/hawlucha-lockup-ivory.svg">
+    <img src="assets/hawlucha-lockup-ink.svg" alt="Hawlucha" width="300">
+  </picture>
+</p>
+
+<p align="center"><sub><em>“Hawlucha helps you see and respond to data changes before they reach production.”</em></sub></p>
+
+<p align="center">
+  <a href="https://github.com/HawluchaAI/hawlucha-cli/actions/workflows/github-code-scanning/codeql"><img src="https://github.com/HawluchaAI/hawlucha-cli/actions/workflows/github-code-scanning/codeql/badge.svg" alt="CodeQL"></a>
+</p>
+
+<p align="center"><strong>Catch unexpected data changes before a dbt PR is reviewed.</strong></p>
+
+Hawlucha is open-source, local dbt PR validation for Snowflake, Databricks, and BigQuery:
+
+- Builds changed models and critical downstream paths in temporary schemas, then cleans them up.
+- Runs dbt tests and compares schema, row counts, null rates, cardinality, ranges, and primary keys with production.
+- Shows affected downstream models and columns.
+- Connects directly to your warehouse, with no Hawlucha account or data sent to Hawlucha.
+- Includes a [`verify`](.agents/skills/verify/SKILL.md) skill that runs the agent check-and-fix loop.
+
+`hawlucha auth login` uses Snowflake OAuth. Databricks uses a token supplied through the configured environment variable. BigQuery uses Google Application Default Credentials. The warehouse identity needs production read access and permission to create and remove temporary schemas or datasets.
+
+## Snowflake quickstart
+
+From your existing Snowflake dbt Core project directory, create or activate its Python environment:
+
+```sh
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install "dbt-core>=1.5,<2" "dbt-snowflake>=1.5,<2" "sqlglot>=30,<31"
+```
+
+Then install Hawlucha on macOS or Linux with Homebrew:
+
+```sh
+brew install hawluchaai/tap/hawlucha
+hawlucha init
+hawlucha auth login
+hawlucha doctor
+hawlucha check --dry-run
+hawlucha check
+```
+
+By default, `check` compares your branch with `origin/main`.
+
+<details>
+<summary>If dbt is managed by your project</summary>
+
+Hawlucha uses the dbt Core and Snowflake adapter versions already installed by your project. Activate the project's normal environment, or set `dbt.command` in `hawlucha-check.yml` to the wrapper your project uses.
+
+</details>
+
+## Databricks
+
+Install the Databricks dbt adapter instead of `dbt-snowflake`:
+
+```sh
+python -m pip install "dbt-core>=1.5,<2" "dbt-databricks>=1.5,<2" "sqlglot>=30,<31"
+```
+
+Use a version 2 configuration with a typed provider block:
+
+```yaml
+version: 2
+dbt:
+  project_dir: .
+  profile: analytics
+accounts:
+  - name: primary
+    provider:
+      type: databricks
+      host: https://your-workspace.cloud.databricks.com
+      http_path: /sql/1.0/warehouses/your-warehouse-id
+      catalog: analytics
+      production_schema: prod
+      auth:
+        type: token
+        token_env: DATABRICKS_TOKEN
+```
+
+The integration uses a Databricks SQL warehouse and Unity Catalog. Set `DATABRICKS_TOKEN`, then run `hawlucha doctor` and `hawlucha check`. Incremental baselines currently require managed Delta tables and use Unity Catalog shallow clones; `doctor` verifies that a suitable table and grants are available.
+
+## BigQuery
+
+Install the BigQuery dbt adapter:
+
+```sh
+python -m pip install "dbt-core>=1.5,<2" "dbt-bigquery>=1.5,<2" "sqlglot>=30,<31"
+```
+
+For local development, create Google Application Default Credentials, then initialize Hawlucha from the dbt project root:
+
+```sh
+gcloud auth application-default login
+hawlucha init
+hawlucha doctor
+hawlucha check --dry-run
+hawlucha check
+```
+
+`init` detects an active BigQuery dbt profile and writes the version 2 provider configuration. The equivalent manual configuration is:
+
+```yaml
+version: 2
+dbt:
+  project_dir: .
+  profile: analytics
+accounts:
+  - name: primary
+    provider:
+      type: bigquery
+      project: analytics-prod
+      location: US
+      production_schema: prod
+      maximum_bytes_billed: 10737418240
+      auth:
+        type: application_default
+```
+
+Application Default Credentials also support `GOOGLE_APPLICATION_CREDENTIALS` and an attached Google Cloud service account. `maximum_bytes_billed` applies the same per-query cap to dbt builds and Hawlucha comparison queries. Incremental baselines use BigQuery table clones; clone mode seeds candidates with table copies. The source and temporary datasets must be in the same location, and table-clone restrictions still apply.
+
+If you do not use Homebrew, use the installer:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/HawluchaAI/hawlucha-cli/main/install.sh | sh
+```
+
+The installer writes to `/usr/local/bin` when writable, otherwise `~/.local/bin`. Set `HAWLUCHA_INSTALL_DIR` to choose another directory.
+
+<details>
+<summary><strong>Installing on Windows (Windows 11 or Windows Server 2022+)</strong></summary>
+
+Download the PowerShell installer from GitHub Releases, inspect it, then run it:
+
+```powershell
+$installer = Join-Path $env:TEMP 'hawlucha-install.ps1'
+Invoke-WebRequest https://github.com/HawluchaAI/hawlucha-cli/releases/latest/download/install.ps1 -OutFile $installer
+Get-Content $installer
+Unblock-File $installer
+& $installer
+```
+
+The installer verifies the release checksum, installs Hawlucha under `%LOCALAPPDATA%\Programs\Hawlucha`, and adds its `bin` directory to your user `PATH`. It does not need administrator access. Open a new terminal when it finishes.
+
+`Unblock-File` removes the internet-zone marker after you inspect the script. It does not change PowerShell's execution policy or verify the publisher. If your organization blocks the script, use the portable ZIP from the same release.
+
+Installer options:
+
+- Pin a release: `& $installer -Version 0.5.4`
+- Run without prompts: `& $installer -Quiet`
+- Uninstall: `& $installer -Uninstall`
+
+Uninstalling removes Hawlucha and its `PATH` entry, but keeps your configuration, credentials, reports, and logs.
+
+Scoop users can install from Hawlucha's official bucket:
+
+```powershell
+scoop bucket add hawlucha https://github.com/HawluchaAI/scoop-bucket
+scoop install hawlucha/hawlucha
+```
+
+WinGet manifests are generated with each release. After the first WinGet listing is accepted:
+
+```powershell
+winget install --id HawluchaAI.Hawlucha --exact
+```
+
+</details>
+
+Use Hawlucha from an existing Snowflake, Databricks, or BigQuery dbt project whose unchanged production models are already materialized. Hawlucha uses those existing relations as the comparison baseline.
+
+For Snowflake and BigQuery, `init` reads the active dbt profile and asks only for missing values. Databricks uses the version 2 configuration shown above. Use `--config <path>` before or after any subcommand to choose another config file.
+
+Continue only when `hawlucha doctor` reports `READY`. Hawlucha generates a temporary dbt profile for its own runs; it does not modify your existing profile or production models.
+
+If dbt is installed in `.venv`, run `source .venv/bin/activate` in each new shell before using Hawlucha.
+
+Example result:
+
+```text
+✓ Safe to continue
+
+The change passed across every selected dbt model.
+
+Scope
+  5 affected models
+  2 selected for validation
+
+Evidence
+  2 / 2 models built · 2 compared with production
+  151,615,312 candidate rows evaluated
+  Schema, row counts, nulls, cardinality, and distributions checked
+  1 primary key checked
+  0 findings · 3 unvalidated models
+  Temporary warehouse schema removed
+
+Lineage impact
+  fct_orders
+  └─ finance_daily
+     ├─ executive_revenue
+     ├─ regional_margin
+     └─ revenue_forecast_input
+
+Completed in 2m11s
+```
+
+In an interactive terminal, `check` shows live progress while it runs. Redirected output, CI, and `--json` stay plain.
+
+## Focus and preview
+
+The default validates changed models and every path to a critical model. Critical targets are tagged `critical`, configured with `critical: true`, or used directly by a dbt exposure. Use `--downstream all` for every downstream model or `--downstream none` for changed models only. Impact is always computed from the full changed set.
+
+Intersect the changed set with one or more explicit models:
+
+```sh
+hawlucha check --select orders --select order_items
+hawlucha check --select orders --downstream none
+```
+
+An unknown, ambiguous, unchanged, or out-of-scope selection fails instead of returning a misleading pass.
+
+Preview the plan without creating schemas or querying warehouse data:
+
+```sh
+hawlucha check --dry-run
+hawlucha check --dry-run --json
+```
+
+Dry runs use local dbt parsing but do not resolve credentials, create warehouse schemas, or query warehouse data.
+
+## Reports and exit codes
+
+JSON output is versioned and stably ordered. Progress goes to stderr, so stdout contains one JSON document.
+
+```sh
+hawlucha check --json
+hawlucha check --json --markdown hawlucha-check.md
+hawlucha check --json --report-version 1
+```
+
+Published contracts: [v1](schemas/report-v1.schema.json), [v2](schemas/report-v2.schema.json), [v3](schemas/report-v3.schema.json), and [v4](schemas/report-v4.schema.json). V4 adds column lineage and bounded warehouse execution links and is the default; older versions remain available with `--report-version`.
+
+| Exit code | Meaning |
+|---:|---|
+| `0` | The check passed |
+| `1` | The data or code needs a fix |
+| `2` | A requested check could not be completed |
+| `3` | Setup, execution, or cleanup failed |
+
+Agent loop:
+
+```text
+Run `hawlucha check --base origin/main --json`.
+Exit 1: fix every finding and rerun.
+Exit 2: resolve or explain every coverage gap.
+Exit 3: fix the setup or execution failure.
+Request review only after exit 0.
+```
+
+For a faster first pass on large tables, add `--mode quick`. Quick mode estimates cardinality and skips percentiles. Deep mode is the default. Primary-key integrity stays exact in both modes.
+
+### Arbitrary SQL checks
+
+Query-diff checks compare any two read-only query results exactly. `production_sql` defaults to `sql`, and each dbt `ref()` is rendered against the candidate or production-state manifest. Checks with no refs, or definitions changed since `--base`, run even when no model changed.
+
+```yaml
+checks:
+  - type: query_diff
+    name: paid order totals
+    sql: |
+      select customer_id, sum(amount) as paid_amount
+      from {{ ref('orders') }}
+      where status = 'paid'
+      group by customer_id
+    primary_key: [customer_id]
+```
+
+With a primary key, Hawlucha reports added, removed, and changed rows plus per-column mismatch counts. Null or duplicate keys block the value join. Without a key, grouped rows and their multiplicities preserve duplicate-only differences. Query examples are bounded by the configured sample, column, and value limits.
+
+Only persisted dbt models are supported in `ref()`. Query checks accept one `SELECT`, `WITH`, or `VALUES` expression; other Jinja and multi-statement SQL are rejected. Removed checks are reported as incomplete coverage instead of silently passing.
+
+## GitHub Actions
+
+The composite action installs Hawlucha. Install dbt with your project's normal locked setup; this example uses `requirements.txt`. Keep the check in a visible `run` step so exit codes and secrets remain explicit.
+
+In `hawlucha-check.yml`, configure the account to read the CI secret:
+
+```yaml
+auth:
+  type: programmatic_access_token
+  token_env: SNOWFLAKE_PROGRAMMATIC_ACCESS_TOKEN
+```
+
+```yaml
+jobs:
+  hawlucha:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - run: python3 -m pip install -r requirements.txt
+      - uses: HawluchaAI/hawlucha-cli@v1
+      - run: hawlucha check --base origin/main --json
+        env:
+          SNOWFLAKE_PROGRAMMATIC_ACCESS_TOKEN: ${{ secrets.SNOWFLAKE_PROGRAMMATIC_ACCESS_TOKEN }}
+```
+
+`fetch-depth: 0` is required because selection compares the working tree with the base revision.
+
+## Maintenance
+
+List managed temporary schemas older than six hours:
+
+```sh
+hawlucha clean
+hawlucha clean --older-than 24 --yes
+```
+
+`clean` searches only configured account databases and verifies the prefix and ownership marker before removal.
+
+Check for or install an update:
+
+```sh
+hawlucha update --check
+hawlucha update
+```
+
+Generate shell completion scripts:
+
+```sh
+hawlucha completion bash
+hawlucha completion zsh
+hawlucha completion fish
+hawlucha completion powershell
+```
+
+## Troubleshooting
+
+### Generated schema is outside the run namespace
+
+Your `generate_schema_name` macro must preserve the complete target schema. Make custom schemas children of `target.schema`; do not replace it.
+
+### Incremental relation cannot be cloned
+
+Every existing incremental model needs a stable baseline copy, including in `full-refresh` mode. Snowflake supports tables that can be zero-copy cloned; Databricks currently supports managed Delta tables that can be shallow cloned; BigQuery supports base tables, table clones, and table snapshots accepted by `CREATE TABLE CLONE`. Use another materialization or exclude an unsupported relation from this validation path.
+
+### Incremental candidate seeding fails
+
+The validation role needs `SELECT` on the production source and `CREATE TABLE` in the target schema. Run `hawlucha doctor`. If the relation should not use clone mode, rerun with `--incremental-mode full-refresh`.
+
+## Configuration and safety
+
+Use `--config <path>` before or after any subcommand to choose another config file.
+
+See the [example configuration](hawlucha-check.example.yml) and [enterprise setup guide](docs/enterprise.md) for service credentials, multiple accounts, model policies, filters, thresholds, concurrency, external changes, cross-account dependencies, Metabase, and grants.
+
+Every temporary schema has a unique name and ownership marker. Query results are materialized in a dedicated run-owned schema so they cannot collide with dbt model aliases. Hawlucha checks ownership before removal and treats cleanup failures as execution failures. Use a dedicated identity that can read and clone only the production tables under test and create temporary schemas in the required databases or catalogs. SQL validation is not a side-effect sandbox, so the identity must not be able to call unsafe procedures, functions, or external integrations.
+
+[Security and data flow](docs/security-and-data-flow.md) documents network connections, local files, returned data, credentials, cleanup, updates, and release verification.
+
+## Current limits
+
+- Databricks support requires a Unity Catalog SQL warehouse and environment-supplied token authentication.
+- Native Windows support requires 64-bit Windows 11 or Windows Server 2022+. Windows 10, Windows on Arm, and machine-wide installation are not supported.
+- Column lineage covers compiled dbt SQL that SQLGlot can resolve. Wildcards without an input schema and dynamic SQL are reported as unresolved.
+- Dashboard column lineage is not inferred from model lineage.
+- Metabase matching covers native SQL cards that reference fully qualified production relations. Unsupported or inaccessible metadata becomes a coverage gap.
+
+## Development
+
+Rust 1.88 or newer is required when building from source.
+
+```sh
+cargo fmt --check
+cargo clippy --all-targets --all-features -- -D warnings
+cargo test --locked
+```
+
+The opt-in Snowflake suite uses `HAWLUCHA_RUN_SNOWFLAKE_TESTS=1` and the `HAWLUCHA_TEST_SNOWFLAKE_*` account, user, role, database, warehouse, and token variables. It covers exact keyed passes and changes, duplicate-only unkeyed differences, incremental cloning, cleanup, and 100,000 synthetic rows.
+
+Contributions are welcome under the [Apache 2.0 license](LICENSE).

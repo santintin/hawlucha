@@ -1,0 +1,16 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.installer.1.12.0.schema.json
+
+PackageIdentifier: HawluchaAI.Hawlucha
+PackageVersion: @VERSION@
+InstallerType: zip
+NestedInstallerType: portable
+ReleaseDate: "@RELEASE_DATE@"
+Installers:
+- Architecture: x64
+  NestedInstallerFiles:
+  - RelativeFilePath: @PACKAGE_ROOT@\bin\hawlucha.exe
+    PortableCommandAlias: hawlucha
+  InstallerUrl: @ARCHIVE_URL@
+  InstallerSha256: @SHA256@
+ManifestType: installer
+ManifestVersion: 1.12.0

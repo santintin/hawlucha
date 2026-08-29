@@ -1,0 +1,67 @@
+[package]
+name = "hawlucha-cli"
+version = "0.5.4"
+edition = "2024"
+rust-version = "1.88"
+build = "build.rs"
+description = "Hawlucha CLI for validating dbt changes against production warehouse data"
+license = "Apache-2.0"
+repository = "https://github.com/HawluchaAI/hawlucha-cli"
+homepage = "https://hawlucha.ai"
+readme = "README.md"
+keywords = ["dbt", "data-warehouse", "data-quality", "testing", "cli"]
+categories = ["command-line-utilities", "development-tools::testing"]
+
+[[bin]]
+name = "hawlucha"
+path = "src/main.rs"
+
+[features]
+default = []
+cloud-demo = ["dep:keyring"]
+
+[dependencies]
+anyhow = "1.0"
+base64 = "0.23"
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+clap = { version = "4.5", features = ["derive"] }
+clap_complete = "4.5"
+globset = "0.4"
+gcp_auth = "0.12.7"
+directories = "6.0"
+keyring = { version = "4.1", optional = true }
+openssl = { version = "0.10", features = ["vendored"] }
+rand = "0.8"
+ratatui = { version = "0.30.2", default-features = false, features = ["crossterm"] }
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+serde_yaml = { package = "serde_yaml_ng", version = "0.10" }
+sha2 = "0.11"
+tempfile = "3.20"
+tokio = { version = "1.45", features = ["io-util", "macros", "net", "rt-multi-thread", "signal", "time"] }
+url = "2.5"
+uuid = { version = "1.16", features = ["v4", "serde"] }
+webbrowser = "1.0"
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.61", features = ["Win32_Foundation", "Win32_Security_Cryptography"] }
+
+[build-dependencies]
+winresource = "0.1.31"
+
+[dev-dependencies]
+assert_cmd = "2.0"
+jsonschema = { version = "0.49", default-features = false }
+predicates = "3.1"
+
+[profile.release]
+lto = "thin"
+strip = true
+
+[package.metadata.winresource]
+ProductName = "Hawlucha"
+FileDescription = "Validate dbt changes against production warehouse data"
+CompanyName = "Hawlucha, Inc."
+LegalCopyright = "Copyright 2026 Hawlucha, Inc."
+OriginalFilename = "hawlucha.exe"

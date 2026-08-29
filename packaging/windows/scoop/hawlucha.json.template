@@ -1,0 +1,25 @@
+{
+    "version": "@VERSION@",
+    "description": "Validate dbt changes against production warehouse data",
+    "homepage": "https://github.com/HawluchaAI/hawlucha-cli",
+    "license": "Apache-2.0",
+    "architecture": {
+        "64bit": {
+            "url": "@ARCHIVE_URL@",
+            "hash": "@SHA256@"
+        }
+    },
+    "extract_dir": "@PACKAGE_ROOT@",
+    "bin": "bin\\hawlucha.exe",
+    "checkver": {
+        "github": "https://github.com/HawluchaAI/hawlucha-cli"
+    },
+    "autoupdate": {
+        "architecture": {
+            "64bit": {
+                "url": "https://github.com/HawluchaAI/hawlucha-cli/releases/download/v$version/hawlucha-$version-x86_64-pc-windows-msvc.zip"
+            }
+        },
+        "extract_dir": "hawlucha-$version-x86_64-pc-windows-msvc"
+    }
+}

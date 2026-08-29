@@ -1,0 +1,31 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.defaultLocale.1.12.0.schema.json
+
+PackageIdentifier: HawluchaAI.Hawlucha
+PackageVersion: @VERSION@
+PackageLocale: en-US
+Publisher: Hawlucha, Inc.
+PublisherUrl: https://hawlucha.ai
+PublisherSupportUrl: https://github.com/HawluchaAI/hawlucha-cli/issues
+Author: Hawlucha, Inc.
+PackageName: Hawlucha
+PackageUrl: https://github.com/HawluchaAI/hawlucha-cli
+License: Apache-2.0
+LicenseUrl: https://github.com/HawluchaAI/hawlucha-cli/blob/main/LICENSE
+Copyright: Copyright 2026 Hawlucha, Inc.
+ShortDescription: Validate dbt changes against production warehouse data
+Description: >-
+  Hawlucha is an open-source CLI that builds changed dbt models in temporary
+  Snowflake schemas and compares them with production before a pull request is reviewed.
+Moniker: hawlucha
+Tags:
+- cli
+- data-engineering
+- data-quality
+- dbt
+- snowflake
+ReleaseNotesUrl: https://github.com/HawluchaAI/hawlucha-cli/releases/tag/v@VERSION@
+Documentations:
+- DocumentLabel: Documentation
+  DocumentUrl: https://github.com/HawluchaAI/hawlucha-cli#readme
+ManifestType: defaultLocale
+ManifestVersion: 1.12.0
