@@ -1,6 +1,17 @@
-<svg width="180" height="40" viewBox="0 0 180 40" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title">
+<svg width="360" height="96" viewBox="0 0 360 96" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title description">
   <title id="title">Hawlucha</title>
-  <path d="M20 3 35 18 20 37 5 18 20 3Zm0 8.5L13.5 18 20 28.5 26.5 18 20 11.5Z" fill="#F7F3EB"/>
-  <path d="M20 3 35 18 20 18V3Z" fill="#6EE7B7"/>
-  <text x="46" y="26" fill="#F7F3EB" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="24" font-weight="700" letter-spacing="-0.8">Hawlucha</text>
+  <desc id="description">An original masked bird-fighter emblem with an energetic wing pose.</desc>
+  <!-- Original mascot mark: a masked bird-fighter, not a reproduction of any character artwork. -->
+  <g stroke="#F7F4EA" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M15 54 42 35l21 18-22 6 19 15-30-4L15 54Z" fill="#F06473" stroke-width="4"/>
+    <path d="m47 35 17-20 9 27-11 11-15-18Z" fill="#F5CC67" stroke-width="4"/>
+    <path d="M65 37c13-11 31-10 42 2l-11 7 18 7-21 9 8 17c-18 3-32-8-35-24l-1-8Z" fill="#39C99B" stroke-width="4"/>
+    <path d="M55 43c6-8 19-9 28-2l-4 23c-11 6-25 1-30-11l6-10Z" fill="#F7F4EA" stroke-width="4"/>
+    <path d="m52 45 14 5 14-5-2 12-12 6-12-6-2-12Z" fill="#22303F" stroke-width="3"/>
+    <path d="m66 50 8 3-8 4-8-4 8-3Z" fill="#F06473" stroke="none"/>
+    <circle cx="59" cy="48" r="2.5" fill="#F7F4EA" stroke="none"/>
+    <circle cx="73" cy="48" r="2.5" fill="#F7F4EA" stroke="none"/>
+    <path d="M78 65c12 6 23 3 32-5" stroke="#F5CC67" stroke-width="5"/>
+  </g>
+  <text x="132" y="61" fill="#F7F4EA" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="42" font-weight="800" letter-spacing="-1.8">Hawlucha</text>
 </svg>
