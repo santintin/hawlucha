@@ -1737,8 +1737,7 @@ async fn cleanup_schemas(
                 }
             }
             Err(error) => report.execution_errors.push(format!(
-                "CI schema cleanup failed for {}.{}; run `hawlucha clean` or remove it manually: {error:#}",
-                database, target_schema,
+                "CI schema cleanup failed for {database}.{target_schema}; run `hawlucha clean` or remove it manually: {error:#}",
             )),
         }
         completed += 1;
