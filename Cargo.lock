@@ -833,39 +833,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "hawlucha-cli"
-version = "0.5.4"
-dependencies = [
- "anyhow",
- "assert_cmd",
- "base64 0.23.1",
- "chrono",
- "clap",
- "clap_complete",
- "directories",
- "gcp_auth",
- "globset",
- "jsonschema",
- "keyring",
- "openssl",
- "predicates",
- "rand 0.8.7",
- "ratatui",
- "reqwest",
- "serde",
- "serde_json",
- "serde_yaml_ng",
- "sha2 0.11.0",
- "tempfile",
- "tokio",
- "url",
- "uuid",
- "webbrowser",
- "windows-sys 0.61.2",
- "winresource",
-]
-
-[[package]]
 name = "endi"
 version = "1.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1217,6 +1184,39 @@ dependencies = [
  "allocator-api2",
  "equivalent",
  "foldhash",
+]
+
+[[package]]
+name = "hawlucha-cli"
+version = "0.5.4"
+dependencies = [
+ "anyhow",
+ "assert_cmd",
+ "base64 0.23.1",
+ "chrono",
+ "clap",
+ "clap_complete",
+ "directories",
+ "gcp_auth",
+ "globset",
+ "jsonschema",
+ "keyring",
+ "openssl",
+ "predicates",
+ "rand 0.8.7",
+ "ratatui",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "serde_yaml_ng",
+ "sha2 0.11.0",
+ "tempfile",
+ "tokio",
+ "url",
+ "uuid",
+ "webbrowser",
+ "windows-sys 0.61.2",
+ "winresource",
 ]
 
 [[package]]
@@ -1690,9 +1690,9 @@ dependencies = [
 
 [[package]]
 name = "keyring"
-version = "4.1.6"
+version = "4.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "72585bb6cc9bc370d1d545b7e23fcce71dfd4461c5e15275e3cf51bdfd9a980a"
+checksum = "2270074a3d26bcac93c1dc5d2845eb4c089e8d761ccf6e0ea266a16004640627"
 dependencies = [
  "apple-native-keyring-store",
  "keyring-core",
